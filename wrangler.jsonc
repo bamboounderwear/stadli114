@@ -7,8 +7,8 @@
   "assets": {
     "binding": "ASSETS",
     "directory": "public",
-    "html_handling": "auto",
-    "not_found_handling": "404"
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
   },
   "vars": {
     "SITE_NAME": "Cloud City Sluggers"
