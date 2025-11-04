@@ -1,4 +1,3 @@
-/* Phase 2: Example schema for D1 (Drizzle ORM) */
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 
 export const designTokens = sqliteTable("design_tokens", {
@@ -34,7 +33,7 @@ export const products = sqliteTable("products", {
 export const venues = sqliteTable("venues", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
-  json: text("json") // sections/rows/seats/pricing JSON
+  json: text("json")
 })
 
 export const games = sqliteTable("games", {

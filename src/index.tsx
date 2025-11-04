@@ -1,29 +1,16 @@
-/* index.ts - single-file Cloudflare Worker using Hono + JSX
-   Phase 1: minimal, deployable skeleton with routes and placeholder content.
-   - Static assets served from /assets/* via ASSETS binding
-   - Optional D1 (not bound yet). Schema + Drizzle setup will be added in Phase 2.
-   - Unopinionated black/white UI, fluid container, responsive layout.
-*/
 import { Hono } from 'hono'
 import { jsxRenderer } from 'hono/jsx-renderer'
-import { html } from 'hono/html'
 
 // ---- Types ----
 export interface Env {
   ASSETS: Fetcher
-  // Optional, add later once D1 is created & bound:
-  // DB: D1Database
   SITE_NAME: string
-  // Optional future bindings:
-  // ANALYTICS: AnalyticsEngineDataset
 }
 
 // ---- Helpers ----
 const year = () => new Date().getFullYear()
 
-// Try to read design tokens from D1 later; for now emit defaults.
-async function designTokensCSS(/* env: Env */): Promise<string> {
-  // In Phase 2, read tokens from env.DB and build CSS variables here.
+async function designTokensCSS(): Promise<string> {
   return `:root{--bg:#fff;--fg:#000;--link:#000;--muted:#444;--maxw:1200px}`
 }
 
@@ -80,9 +67,7 @@ function Layout(props: { title?: string; siteName: string; tokens: string; child
   )
 }
 
-// ---- Pages (Phase 1 placeholders) ----
-
-// 1) Homepage
+// ---- Pages ----
 function HomePage() {
   return (
     <>
@@ -135,7 +120,6 @@ function HomePage() {
   )
 }
 
-// 3) Team
 function TeamPage() {
   return (
     <>
@@ -159,7 +143,6 @@ function TeamPage() {
   )
 }
 
-// 4) News listing
 function NewsPage() {
   return (
     <>
@@ -179,7 +162,6 @@ function NewsPage() {
   )
 }
 
-// 5) Individual News Post
 function NewsPostPage() {
   return (
     <>
@@ -193,7 +175,6 @@ function NewsPostPage() {
   )
 }
 
-// 6) Games & Schedule
 function GamesPage() {
   return (
     <>
@@ -214,7 +195,6 @@ function GamesPage() {
   )
 }
 
-// 7) Individual Game Page (tickets table placeholder)
 function GamePage(props: { id: string }) {
   const { id } = props
   return (
@@ -268,7 +248,6 @@ function GamePage(props: { id: string }) {
   )
 }
 
-// 8) Shop
 function ShopPage() {
   return (
     <>
@@ -286,7 +265,6 @@ function ShopPage() {
   )
 }
 
-// 9) Product page
 function ProductPage(props: { id: string }) {
   const { id } = props
   return (
@@ -308,18 +286,23 @@ function ProductPage(props: { id: string }) {
 // ---- App ----
 const app = new Hono<{ Bindings: Env }>()
 
-// Global renderer (wrap every route with Layout)
+// Preload tokens per request (Phase 2: read from D1)
 app.use('*', async (c, next) => {
   const tokens = await designTokensCSS()
-  c.setRenderer((content) =>
-    html(
-      <Layout title={c.get('title')} siteName={c.env.SITE_NAME} tokens={tokens}>
-        {content}
-      </Layout>
-    )
-  )
+  c.set('tokens', tokens)
   await next()
 })
+
+// Global renderer that wraps every response in <Layout>
+app.use('*', jsxRenderer(({ children }, c) => {
+  const tokens = c.get('tokens') ?? ''
+  const title = c.get('title')
+  return (
+    <Layout title={title} siteName={c.env.SITE_NAME} tokens={tokens}>
+      {children}
+    </Layout>
+  )
+}))
 
 // Static assets
 app.get('/assets/*', (c) => c.env.ASSETS.fetch(c.req.raw))
@@ -369,7 +352,6 @@ app.get('/shop/:id', (c) => {
 
 // Newsletter placeholder
 app.post('/newsletter', async (c) => {
-  // Phase 2: store in CRM (D1) + send to Queue
   return c.redirect('/', 303)
 })
 
