@@ -1,0 +1,16 @@
+{
+  "name": "baseball-workers",
+  "main": "src/index.tsx",
+  "compatibility_date": "2025-03-07",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "public",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "vars": {
+    "SITE_NAME": "Cloud City Sluggers"
+  }
+}
